@@ -76,7 +76,7 @@ public final class Tile {
             }
             int count = 0;
             int index = (int) (Math.random() * TILES.length);
-            while (quantities[index] == 0) {
+            while (dynamicQuantities[index] == 0) {
                 if(check[index] == 0) {
                     if(++count == 26) {
                         return null;
@@ -85,7 +85,7 @@ public final class Tile {
                 }
                 index = (int) (Math.random() * TILES.length);
             }
-            quantities[index]--;
+            this.dynamicQuantities[index] -= 1;
             return TILES[index];
         }
 
@@ -97,7 +97,7 @@ public final class Tile {
             if (dynamicQuantities[i] == 0) {
                 return null;
             }
-            dynamicQuantities[i]--;
+            this.dynamicQuantities[i] -= 1;
             return TILES[i];
         }
 
@@ -107,9 +107,9 @@ public final class Tile {
             }
             int i = t.letter - 'A';
             if (dynamicQuantities[i] + 1 > quantities[i]) {
-                throw new IllegalStateException("No more tiles of this type left");
+                return;
             }
-            dynamicQuantities[i]++;
+            this.dynamicQuantities[i] += 1;
         }
 
         public int size() {
