@@ -36,7 +36,7 @@ public final class Tile {
     }
 
     public static class Bag {
-        private final static Bag INSTANCE = new Bag();
+        private static Bag INSTANCE = null;
 
         private final static Tile[] TILES = new Tile[] {
             new Tile('A', 1),
@@ -125,6 +125,9 @@ public final class Tile {
         }
 
         public static Bag getBag() {
+            if (INSTANCE == null) {
+                INSTANCE = new Bag();
+            }
             return INSTANCE;
         }
     }
