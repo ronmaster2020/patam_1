@@ -67,25 +67,26 @@ public final class Tile {
             new Tile('Z', 10)};
 
         private final static int[] quantities = new int[] {9, 2, 2, 4, 12, 2, 3, 2, 9, 1, 1, 4, 2, 6, 8, 2, 1, 6, 4, 6, 4, 2, 2, 1, 2, 1};
-        private final int[] dynamicQuantities = new int[] {9, 2, 2, 4, 12, 2, 3, 2, 9, 1, 1, 4, 2, 6, 8, 2, 1, 6, 4, 6, 4, 2, 2, 1, 2, 1};
+        private final int[] dynamicQuantities = quantities.clone();
+        private int count;
+
+        private Bag() {
+            for (int i = 0; i < 26; i++) {
+                this.count += quantities[i];
+            }
+        }
 
         public Tile getRand() {
-            int[] check = new int[26];
-            for (int i = 0; i < 26; i++) {
-                check[i] = 0;
+            if (this.count == 0) {
+                return null;
             }
-            int count = 0;
+
             int index = (int) (Math.random() * TILES.length);
             while (dynamicQuantities[index] == 0) {
-                if(check[index] == 0) {
-                    if(++count == 26) {
-                        return null;
-                    }
-                    check[index] = 1;
-                }
                 index = (int) (Math.random() * TILES.length);
             }
             this.dynamicQuantities[index] -= 1;
+            this.count--;
             return TILES[index];
         }
 
@@ -98,6 +99,7 @@ public final class Tile {
                 return null;
             }
             this.dynamicQuantities[i] -= 1;
+            this.count--;
             return TILES[i];
         }
 
@@ -110,14 +112,11 @@ public final class Tile {
                 return;
             }
             this.dynamicQuantities[i] += 1;
+            this.count++;
         }
 
         public int size() {
-            int count = 0;
-            for (int i = 0; i < 26; i++) {
-                count += dynamicQuantities[i];
-            }
-            return count;
+            return this.count;
         }
 
         public int[] getQuantities() {
