@@ -29,6 +29,10 @@ public class Word {
         return this.tiles;
     }
 
+    public void setTiles(Tile[] tiles) {
+        this.tiles = tiles;
+    }
+
     @Override
     public String toString() {
         String s = "";
