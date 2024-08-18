@@ -37,6 +37,10 @@ public class Word {
     public String toString() {
         String s = "";
         for (Tile t : this.tiles) {
+            if (t == null) {
+                s += "_";
+                continue;
+            }
             s += t.getLetter();
         }
         return s;

@@ -7,6 +7,34 @@ public class Board {
     private Tile[][] tiles = new Tile[15][15];
     private static Board INSTANCE = null;
     private boolean isEmpty = true;
+    private static final int[][] DOUBLE_WORD_SCORES = {
+            {1, 1}, {2, 2}, {3, 3}, {4, 4},
+            {1, 13}, {2, 12}, {3, 11}, {4, 10},
+            {13, 1}, {12, 2}, {11, 3}, {10, 4},
+            {13, 13}, {12, 12}, {11, 11}, {10, 10}
+    };
+    private static final int[][] TRIPLE_WORD_SCORES = {
+            {0, 0}, {0, 7}, {0, 14},
+            {7, 0}, {7, 14},
+            {14, 0}, {14, 7}, {14, 14}
+    };
+    private static final int[][] DOUBLE_LETTER_SCORES = {
+            {0, 3}, {0, 11},
+            {2, 6}, {2, 8},
+            {3, 0}, {3, 7}, {3, 14},
+            {6, 2}, {6, 6}, {6, 8}, {6, 12},
+            {7, 3}, {7, 11},
+            {8, 2}, {8, 6}, {8, 8}, {8, 12},
+            {11, 0}, {11, 7}, {11, 14},
+            {12, 6}, {12, 8},
+            {14, 3}, {14, 11}
+    };
+    private static final int[][] TRIPLE_LETTER_SCORES = {
+            {1, 5}, {1, 9},
+            {5, 1}, {5, 5}, {5, 9}, {5, 13},
+            {9, 1}, {9, 5}, {9, 9}, {9, 13},
+            {13, 5}, {13, 9}
+    };
 
     public static Board getBoard() {
         if (INSTANCE == null) {
@@ -55,9 +83,6 @@ public class Board {
                 if (wTiles[i] == null || wTiles[i].getLetter() == '_'){
                     if (current == null) {
                         return false;
-                    } else {
-                        fullWord.getTiles()[i] = current;
-                        continue;
                     }
                 } else {
                     if (current != null && current != wTiles[i]) {
@@ -86,9 +111,6 @@ public class Board {
                 if (wTiles[i] == null || wTiles[i].getLetter() == '_') {
                     if (current == null) {
                         return false;
-                    } else {
-                        fullWord.getTiles()[i] = current;
-                        continue;
                     }
                 } else {
                     if (current != null && current != wTiles[i]) {
@@ -105,22 +127,38 @@ public class Board {
     public boolean dictionaryLegal(Word w) {
         return true;
     }
-//    public int tryPlaceWord(Word w) {
-//        if (!boardLegal(w)) {
-//            return -1;
-//        }
-//        Tile[] word = w.getTiles();
-//        if (w.isVertical()) {
-//            for (int i = 0; i < word.length; i++) {
-//                tiles[w.getRow() + i][w.getCol()] = word[i];
-//            }
-//        } else {
-//            for (int i = 0; i < word.length; i++) {
-//                tiles[w.getRow()][w.getCol() + i] = word[i];
-//            }
-//        }
-//        return 14;
-//    }
+    public int tryPlaceWord(Word w) {
+        if (!boardLegal(w)) {
+            return -1;
+        }
+        int col = w.getCol();
+        int row = w.getRow();
+        int score = getScore(w);
+        Tile[] tiles = w.getTiles();
+        if (w.isVertical()) {
+            for (int i = 0; i < w.getTiles().length; i++) {
+                if (tiles[i] != null && tiles[i].getLetter() != '_') {
+                    this.tiles[row + i][col] = tiles[i];
+                    Word word = getWord(row + i, col, false);
+                    if (word != null) {
+                        score += getScore(word);
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < w.getTiles().length; i++) {
+                if (tiles[i] != null && tiles[i].getLetter() != '_') {
+                    this.tiles[row][col + i] = tiles[i];
+                    Word word = getWord(row, col + i, true);
+                    if (word != null) {
+                        score += getScore(word);
+                    }
+                }
+            }
+        }
+        this.isEmpty = false;
+        return score;
+    }
     public ArrayList<Word> getWords(Word w) {
         if (!boardLegal(w)) {
             return null;
@@ -150,32 +188,131 @@ public class Board {
         return words;
     }
     private Word getWord(int row, int col, boolean vertical) {
-        if (vertical) {
-            int j = row;
-            while (j < 14 && tiles[j + 1][col] != null) {
-                j++;
+        if (this.tiles[row][col] == null) {
+            return null;
+        }
+        if (!vertical) {
+            while (col > 0 && tiles[row][col - 1] != null) {
+                col--;
             }
-            if (j - row < 1) {
+            int len = 0;
+            while (col + len < 14 && tiles[row][col + len] != null) {
+                len++;
+            }
+            if (len <= 1) {
                 return null;
             }
-            Tile[] word = new Tile[j - row + 1];
-            for (int k = row; k <= j; k++) {
-                word[k - row] = tiles[k][col];
+            Tile[] word = new Tile[len];
+            for (int k = 0; k < len; k++) {
+                word[k] = tiles[row][col + k];
             }
             return new Word(word, row, col, vertical);
         } else {
-            int j = col;
-            while (j < 14 && tiles[row][j + 1] != null) {
-                j++;
+            while (row > 0 && tiles[row - 1][col] != null) {
+                row--;
             }
-            if (j - col < 1) {
+            int len = 0;
+            while (row + len < 14 && tiles[row + len][col] != null) {
+                len++;
+            }
+            if (len <= 1) {
                 return null;
             }
-            Tile[] word = new Tile[j - col + 1];
-            for (int k = col; k <= j; k++) {
-                word[k - col] = tiles[row][k];
+            Tile[] word = new Tile[len];
+            for (int k = 0; k < len; k++) {
+                word[k] = tiles[row + k][col];
             }
             return new Word(word, row, col, vertical);
         }
+    }
+    public int getScore(Word w) {
+        if (!boardLegal(w)) {
+            return -1;
+        }
+        int score = 0;
+        int row = w.getRow();
+        int col = w.getCol();
+        int wordMultiplier = 1;
+        if (this.isEmpty) {
+            wordMultiplier = 2;
+        }
+        if (w.isVertical()) {
+            for (int i = 0; i < w.getTiles().length; i++) {
+                if (tiles[row + i][col] == null) {
+                    score += getLetterWithBonusScore(row + i, col, w.getTiles()[i]);
+                } else {
+                    score += getLetterWithBonusScore(row + i, col, tiles[row + i][col]);
+                }
+
+                if (isDoubleWordScore(row + i, col)) {
+                    wordMultiplier *= 2;
+                }
+                if (isTripleWordScore(row + i, col)) {
+                    wordMultiplier *= 3;
+                }
+            }
+        } else {
+            for (int i = 0; i < w.getTiles().length; i++) {
+                if (tiles[row][col + i] == null) {
+                    score += getLetterWithBonusScore(row, col + i, w.getTiles()[i]);
+                } else {
+                    score += getLetterWithBonusScore(row, col + i, tiles[row][col + i]);
+                }
+
+                if (isDoubleWordScore(row + i, col)) {
+                    wordMultiplier *= 2;
+                }
+                if (isTripleWordScore(row + i, col)) {
+                    wordMultiplier *= 3;
+                }
+            }
+        }
+        return score * wordMultiplier;
+    }
+    private int getLetterWithBonusScore(int row, int col, Tile t) {
+        if (t == null) {
+            return 0;
+        }
+        int score = 0;
+        if (isDoubleLetterScore(row, col)) {
+            score += t.getValue() * 2;
+        } else if (isTripleLetterScore(row, col)) {
+            score += t.getValue() * 3;
+        } else {
+            score += t.getValue();
+        }
+        return score;
+    }
+    private boolean isDoubleWordScore(int row, int col) {
+        for (int[] position : DOUBLE_WORD_SCORES) {
+            if (position[0] == row && position[1] == col) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean isTripleWordScore(int row, int col) {
+        for (int[] position : TRIPLE_WORD_SCORES) {
+            if (position[0] == row && position[1] == col) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean isDoubleLetterScore(int row, int col) {
+        for (int[] position : DOUBLE_LETTER_SCORES) {
+            if (position[0] == row && position[1] == col) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean isTripleLetterScore(int row, int col) {
+        for (int[] position : TRIPLE_LETTER_SCORES) {
+            if (position[0] == row && position[1] == col) {
+                return true;
+            }
+        }
+        return false;
     }
 }

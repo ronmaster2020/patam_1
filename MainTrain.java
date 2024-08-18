@@ -76,28 +76,35 @@ public class MainTrain {
 			bag.put(t);
 
 		Word horn = new Word(get("HORN"), 7, 5, false);
+		if (b.tryPlaceWord(horn) != 14) {
+			System.out.println("problem in placeWord for 1st word (-10)");
+			System.out.println("Expected: 14, got: " + b.tryPlaceWord(horn));
+		}
+
+		Word farm = new Word(get("FA_M"), 5, 7, true);
+		if (b.tryPlaceWord(farm) != 9) {
+			System.out.println("problem in placeWord for 2ed word (-10)");
+			System.out.println("Expected: 9, got: " + b.tryPlaceWord(farm));
+		}
+
+		Word paste = new Word(get("PASTE"), 9, 5, false);
+		if (b.tryPlaceWord(paste) != 25) {
+			System.out.println("problem in placeWord for 3ed word (-10)");
+			System.out.println("Expected: 25, got: " + b.tryPlaceWord(paste));
+		}
+
+		Word mob = new Word(get("_OB"), 8, 7, false);
+		if (b.tryPlaceWord(mob) != 18) {
+			System.out.println("problem in placeWord for 4th word (-10)");
+			System.out.println("Expected: 18, got: " + b.tryPlaceWord(mob));
+		}
+
+		Word bit = new Word(get("BIT"), 10, 4, false);
+		if (b.tryPlaceWord(bit) != 22) {
+			System.out.println("problem in placeWord for 5th word (-15)");
+			System.out.println("Expected: 22, got: " + b.tryPlaceWord(bit));
+		}
 	}
-//		if (b.tryPlaceWord(horn) != 14)
-//			System.out.println("problem in placeWord for 1st word (-10)");
-//
-//		Word farm = new Word(get("FA_M"), 5, 7, true);
-//		if (b.tryPlaceWord(farm) != 9)
-//			System.out.println("problem in placeWord for 2ed word (-10)");
-//
-//		Word paste = new Word(get("PASTE"), 9, 5, false);
-//		if (b.tryPlaceWord(paste) != 25)
-//			System.out.println("problem in placeWord for 3ed word (-10)");
-//
-//		Word mob = new Word(get("_OB"), 8, 7, false);
-//		if (b.tryPlaceWord(mob) != 18)
-//			System.out.println("problem in placeWord for 4th word (-10)");
-//
-//		Word bit = new Word(get("BIT"), 10, 4, false);
-//		if (b.tryPlaceWord(bit) != 22)
-//			System.out.println("problem in placeWord for 5th word (-15)");
-//
-//
-//	}
 
 	public static void main(String[] args) {
 		testBag(); // 30 points
